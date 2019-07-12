@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/imdario/mergo"
 	"github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
 )
@@ -31,12 +30,8 @@ type ReliableRequest struct {
 }
 
 // NewReliableRequest - create a new ReliableRequest
-func NewReliableRequest(rr ReliableRequest) *ReliableRequest {
-	mergo.Merge(&rr, defaultReliableRequest())
-
-	if rr.HystrixCommandName != defaultCommandName {
-		hystrix.ConfigureCommand(rr.HystrixCommandName, rr.HystrixCommand)
-	}
+func NewReliableRequest() *ReliableRequest {
+	rr := defaultReliableRequest()
 
 	return &rr
 }
