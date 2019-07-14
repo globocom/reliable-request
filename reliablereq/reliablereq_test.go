@@ -4,6 +4,7 @@ import (
 	"github.com/globocom/reliable-request/reliablereq"
 	"github.com/stretchr/testify/assert"
 	gock "gopkg.in/h2non/gock.v1"
+	"io/ioutil"
 	"net/http"
 	"testing"
 	"time"
@@ -37,12 +38,7 @@ func TestValidRequest(t *testing.T) {
 	gock.New("http://example.com").
 		Get("/list").
 		Reply(200).
-		JSON([]map[string]interface{}{
-			{
-				"name":   "mock",
-				"number": 42,
-			},
-		})
+		JSON(map[string]interface{}{"name": "mock"})
 
 	req := reliablereq.NewReliableRequest()
 	// we need to replace current http client due
@@ -53,6 +49,8 @@ func TestValidRequest(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
+	body, _ := ioutil.ReadAll(resp.Body)
+	assert.Equal(t, string(body), "{\"name\":\"mock\"}\n")
 }
 
 // happy path
