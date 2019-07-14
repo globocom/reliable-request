@@ -34,6 +34,7 @@ func TestCreateCustomReliableRequest(t *testing.T) {
 
 func TestValidRequest(t *testing.T) {
 	defer gock.Off()
+	reliablereq.FlushCache()
 
 	gock.New("http://example.com").
 		Get("/list").
@@ -41,9 +42,10 @@ func TestValidRequest(t *testing.T) {
 		JSON(map[string]interface{}{"name": "mock"})
 
 	req := reliablereq.NewReliableRequest()
-	// we need to replace current http client due
+	// we need to intercept current http client due
 	// https://github.com/h2non/gock/issues/27#issuecomment-334177773<Paste>
-	req.HTTPClient = &http.Client{Timeout: time.Second * 10}
+	gock.InterceptClient(req.HTTPClient)
+	defer gock.RestoreClient(req.HTTPClient)
 
 	resp, err := req.Request("http://example.com/list")
 
