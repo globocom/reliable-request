@@ -43,7 +43,7 @@ func TestValidRequest(t *testing.T) {
 
 	req := reliablereq.NewReliableRequest()
 	// we need to intercept current http client due
-	// https://github.com/h2non/gock/issues/27#issuecomment-334177773<Paste>
+	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
