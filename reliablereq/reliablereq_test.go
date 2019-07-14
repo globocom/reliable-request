@@ -3,11 +3,10 @@ package reliablereq
 import (
 	"github.com/globocom/reliable-request/reliablereq"
 	"github.com/stretchr/testify/assert"
-	//	gock "gopkg.in/h2non/gock.v1"
-	//	"net"
-	//	"net/http"
+	gock "gopkg.in/h2non/gock.v1"
+	"net/http"
 	"testing"
-	//	"time"
+	"time"
 )
 
 func TestCreateNewDefaultReliableRequest(t *testing.T) {
@@ -32,59 +31,29 @@ func TestCreateCustomReliableRequest(t *testing.T) {
 	assert.Equal(t, req.EnableStaleCache, false)
 }
 
-//func TestValidRequest(t *testing.T) {
-//	defer gock.Off()
-//
-//	gock.New("http://example.com").
-//		Get("/list").
-//		Reply(200).
-//		JSON([]map[string]interface{}{
-//			{
-//				"name":   "mock",
-//				"number": 42,
-//			},
-//		})
-//
-//	req := reliablereq.NewReliableRequest()
-//	resp, err := req.Request("http://example.com/list")
-//
-//	assert.Nil(t, err)
-//	assert.NotNil(t, resp)
-//}
-//
-//func TestSimple(t *testing.T) {
-//	defer gock.Off()
-//
-//	gock.New("http://example.com").
-//		Get("/bar.json").
-//		Reply(200).
-//		JSON(map[string]string{"foo": "bar"})
-//
-//	//client := &http.Client{}
-//	client := &http.Client{
-//		Transport: &http.Transport{
-//			DialContext: (&net.Dialer{
-//				Timeout:   1000,
-//				KeepAlive: 30 * time.Second,
-//			}).DialContext,
-//			MaxIdleConns:        300,
-//			MaxIdleConnsPerHost: 300,
-//			TLSHandshakeTimeout: 300,
-//		},
-//		Timeout: 300,
-//	}
-//
-//	req, err := http.NewRequest("GET", "http://example.com/bar.json", nil)
-//	res, err := client.Do(req)
-//	//res, err := http.Get("http://example.com/bar.json")
-//	assert.Nil(t, err)
-//	assert.Equal(t, res.StatusCode, 200)
-//
-//	//	body, _ := ioutil.ReadAll(res.Body)
-//	//	st.Expect(t, string(body)[:13], `{"foo":"bar"}`)
-//
-//	//	st.Expect(t, gock.IsDone(), true)
-//}
+func TestValidRequest(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("http://example.com").
+		Get("/list").
+		Reply(200).
+		JSON([]map[string]interface{}{
+			{
+				"name":   "mock",
+				"number": 42,
+			},
+		})
+
+	req := reliablereq.NewReliableRequest()
+	// we need to replace current http client due
+	// https://github.com/h2non/gock/issues/27#issuecomment-334177773<Paste>
+	req.HTTPClient = &http.Client{Timeout: time.Second * 10}
+
+	resp, err := req.Request("http://example.com/list")
+
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
+}
 
 // happy path
 // 1. 200 com conteudo
