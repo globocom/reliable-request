@@ -17,8 +17,9 @@ func init() {
 	cachedResponses = cache.New(5*time.Minute, 10*time.Minute)
 }
 
-func FlushCache() {
+func Flush() {
 	cachedResponses.Flush()
+	hystrix.Flush()
 }
 
 // ReliableRequest - a struct holding params to make reliable requests
