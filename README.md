@@ -50,6 +50,7 @@ client := &http.Client{
 
 # Future
 
+* add more examples, like token header requests and more
 * discuss the adopted defaults
 * add travis ci
 * add go api documentation
