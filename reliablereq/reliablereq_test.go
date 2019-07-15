@@ -1,11 +1,12 @@
 package reliablereq
 
 import (
+	"testing"
+	"time"
+
 	"github.com/globocom/reliable-request/reliablereq"
 	"github.com/stretchr/testify/assert"
 	gock "gopkg.in/h2non/gock.v1"
-	"testing"
-	"time"
 )
 
 func Test_It_returns_a_valid_response(t *testing.T) {
@@ -52,8 +53,6 @@ func Test_It_returns_an_error_when_server_responds_with_a_non_2xx(t *testing.T) 
 			Reply(status)
 
 		req := reliablereq.NewReliableRequest()
-		// we need to intercept current http client due
-		// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 		gock.InterceptClient(req.HTTPClient)
 		defer gock.RestoreClient(req.HTTPClient)
 
@@ -63,7 +62,6 @@ func Test_It_returns_an_error_when_server_responds_with_a_non_2xx(t *testing.T) 
 	}
 }
 
-// ############### Caching ######################
 func Test_It_uses_cache_when_enabled(t *testing.T) {
 	defer gock.Off()
 	reliablereq.Flush()
@@ -75,8 +73,6 @@ func Test_It_uses_cache_when_enabled(t *testing.T) {
 		JSON(map[string]interface{}{"name": "mock"})
 
 	req := reliablereq.NewReliableRequest()
-	// we need to intercept current http client due
-	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
@@ -105,8 +101,6 @@ func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
 
 	req := reliablereq.NewReliableRequest()
 	req.EnableCache = false
-	// we need to intercept current http client due
-	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
@@ -133,8 +127,6 @@ func Test_It_uses_stale_cache_when_enabled(t *testing.T) {
 
 	req := reliablereq.NewReliableRequest()
 	req.TTLCache = 1 * time.Second
-	// we need to intercept current http client due
-	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
@@ -165,8 +157,6 @@ func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 	req := reliablereq.NewReliableRequest()
 	req.TTLCache = 1 * time.Second
 	req.EnableStaleCache = false
-	// we need to intercept current http client due
-	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
@@ -184,16 +174,31 @@ func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-// ############### Caching ######################
+func Test_It_allows_custom_headers(t *testing.T) {
+	defer gock.Off()
+	reliablereq.Flush()
 
-// AllNon2xxAreError
-//
+	gock.New("http://example.com").
+		MatchHeader("Authorization", "^foo bar$").
+		Get("/list").
+		Times(1).
+		Reply(200).
+		JSON(map[string]interface{}{"name": "mock"})
+
+	req := reliablereq.NewReliableRequest()
+	req.Headers = map[string]string{"Authorization": "foo bar"}
+
+	gock.InterceptClient(req.HTTPClient)
+	defer gock.RestoreClient(req.HTTPClient)
+
+	body, err := req.Get("http://example.com/list")
+
+	assert.Nil(t, err)
+	assert.NotNil(t, body)
+	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+}
 
 // happy path
-// 1. 200 com conteudo
-// 2. caching (enabled/disabled)
-// 3. stale caching (enabled/disabled)
-// 4. custom headers
 // 5. all hystrix features (circuit break on and off)
 
 // unhappy path
