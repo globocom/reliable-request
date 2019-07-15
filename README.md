@@ -54,4 +54,5 @@ client := &http.Client{
 * add travis ci
 * add go api documentation
 * add retry logic (by go-resiliency)
+* add hooks (callbacks) to provides means for metrics gathering
 * add more HTTP verbs?
