@@ -34,7 +34,7 @@ func makeDefaultHistryx() {
 		Timeout:                800 + 100, // the defaultTimeout http client + a small gap
 		MaxConcurrentRequests:  100,
 		ErrorPercentThreshold:  50,
-		RequestVolumeThreshold: 3,
+		RequestVolumeThreshold: 20,
 		SleepWindow:            5000,
 	}
 
