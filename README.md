@@ -60,7 +60,6 @@ client := &http.Client{
 * discuss the adopted defaults
 * discuss whether async hystrix is better (Go instead of Do)
 * understand and test the simultaneous client req hystrix config to see its implications
-* add travis ci
 * add go api documentation
 * add retry logic (by go-resiliency)
 * add hooks (callbacks) to provides means for metrics gathering
