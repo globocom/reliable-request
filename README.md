@@ -13,6 +13,11 @@ req := reliablereq.NewReliableRequest()
 req.TTLCache = 1 * time.Second
 req.EnableStaleCache = false
 body, err := req.Get("http://example.com/list")
+
+// passing authentication/authorization bearer token
+req := reliablereq.NewReliableRequest()
+req.Headers = map[string]string{"Authorization": "Bearer foobar"}
+body, err := req.Get("http://example.com/list")
 ```
 
 # Opinionated defaults
@@ -50,10 +55,14 @@ client := &http.Client{
 
 # Future
 
+* provide a proxy to setup hystrix
 * add more examples, like token header requests and more
 * discuss the adopted defaults
+* discuss whether async hystrix is better (Go instead of Do)
+* understand and test the simultaneous client req hystrix config to see its implications
 * add travis ci
 * add go api documentation
 * add retry logic (by go-resiliency)
 * add hooks (callbacks) to provides means for metrics gathering
 * add more HTTP verbs?
+* add load stress
