@@ -31,8 +31,7 @@ type ReliableRequest struct {
 	TTLCache           time.Duration
 	EnableStaleCache   bool
 	TTLStaleCache      time.Duration
-	HystrixCommandName string
-	HystrixCommand     hystrix.CommandConfig
+	hystrixCommandName string
 }
 
 // NewReliableRequest - create a new ReliableRequest
@@ -53,7 +52,7 @@ func (rr *ReliableRequest) Get(url string) (string, error) {
 		}
 	}
 
-	err := hystrix.Do(rr.HystrixCommandName, func() error {
+	err := hystrix.Do(rr.hystrixCommandName, func() error {
 		resp, err := rr.urlRequest(url)
 		if err == nil {
 			rawBody, _ := ioutil.ReadAll(resp.Body)
@@ -79,8 +78,13 @@ func (rr *ReliableRequest) Get(url string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, fmt.Sprintf("could not complete the request for url"))
 	}
-
 	return body, nil
+}
+
+//UpdateHystrixConfig - configure a new circuit breaker
+func (rr *ReliableRequest) UpdateHystrixConfig(name string, conf hystrix.CommandConfig) {
+	rr.hystrixCommandName = name
+	hystrix.ConfigureCommand(name, conf)
 }
 
 func keyStale(key string) string {

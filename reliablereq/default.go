@@ -48,7 +48,7 @@ func defaultReliableRequest() ReliableRequest {
 		TTLCache:           1 * time.Minute,
 		EnableStaleCache:   true,
 		TTLStaleCache:      24 * time.Hour,
-		HystrixCommandName: defaultCommandName,
+		hystrixCommandName: defaultCommandName,
 	}
 	return rr
 }
