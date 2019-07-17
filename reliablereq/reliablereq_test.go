@@ -29,7 +29,7 @@ func Test_It_returns_a_valid_response(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 }
 
 func Test_It_raises_an_error_when_there_is_no_connection(t *testing.T) {
@@ -81,13 +81,13 @@ func Test_It_uses_cache_when_enabled(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 
 	body, err = req.Get("http://example.com/list")
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 }
 
 func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
@@ -109,7 +109,7 @@ func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 
 	body, err = req.Get("http://example.com/list")
 
@@ -135,7 +135,7 @@ func Test_It_uses_stale_cache_when_enabled(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 
 	// simulating a cache eviction
 	time.Sleep(2 * time.Second)
@@ -165,7 +165,7 @@ func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 
 	// simulating a cache eviction
 	time.Sleep(2 * time.Second)
@@ -196,7 +196,7 @@ func Test_It_allows_custom_headers(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, body)
-	assert.Equal(t, body, "{\"name\":\"mock\"}\n")
+	assert.Equal(t, "{\"name\":\"mock\"}\n", body)
 }
 func Test_It_opens_the_circuit_breaker_when_error_percentage_is_reached(t *testing.T) {
 	defer gock.Off()
@@ -227,8 +227,8 @@ func Test_It_opens_the_circuit_breaker_when_error_percentage_is_reached(t *testi
 
 	cb, _, _ := hystrix.GetCircuit("custom_cb")
 
-	assert.Equal(t, body, "")
-	assert.Equal(t, cb.IsOpen(), true)
+	assert.Equal(t, "", body)
+	assert.Equal(t, true, cb.IsOpen())
 }
 func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 	defer gock.Off()
@@ -278,8 +278,8 @@ func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 	body, _ := req.Get("http://example.com/list0") //error 100%
 	body, _ = req.Get("http://example.com/list1")  //error 100%
 
-	assert.Equal(t, body, "")
-	assert.Equal(t, cb.IsOpen(), true) // open due to error percentage + request volume threshold
+	assert.Equal(t, "", body)
+	assert.Equal(t, true, cb.IsOpen()) // open due to error percentage + request volume threshold
 
 	body, _ = req.Get("http://example.com/list2") //error 100%
 	body, _ = req.Get("http://example.com/list3") //error 75%
@@ -289,5 +289,5 @@ func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 	body, _ = req.Get("http://example.com/list4") //error 60%
 	body, _ = req.Get("http://example.com/list5") //error 50%
 
-	assert.Equal(t, cb.IsOpen(), false) // closed due to error percentage
+	assert.Equal(t, false, cb.IsOpen()) // closed due to error percentage
 }
