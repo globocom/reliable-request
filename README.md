@@ -1,5 +1,5 @@
 # Reliablereq
-[![Build Status](https://secure.travis-ci.org/globocom/megadraft.png?branch=master)](https://travis-ci.org/globocom/megadraft)
+[![Build Status](https://secure.travis-ci.org/globocom/megadraft.png?branch=master)](https://travis-ci.org/globocom/megadraft) [![Go Report Card](https://goreportcard.com/badge/github.com/globocom/reliable-request)](https://goreportcard.com/report/github.com/globocom/reliable-request)
 
 A golang opinionated library to provide reliable request using [hystrix-go](https://github.com/afex/hystrix-go), [go-cache](https://github.com/patrickmn/go-cache), and [go-resiliency](https://github.com/eapache/go-resiliency).
 
