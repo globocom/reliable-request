@@ -5,21 +5,20 @@ import (
 	"time"
 
 	"github.com/afex/hystrix-go/hystrix"
-	"github.com/globocom/reliable-request/reliablereq"
 	"github.com/stretchr/testify/assert"
 	gock "gopkg.in/h2non/gock.v1"
 )
 
 func Test_It_returns_a_valid_response(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	// we need to intercept current http client due
 	// https://github.com/h2non/gock/issues/27#issuecomment-334177773
 	gock.InterceptClient(req.HTTPClient)
@@ -33,9 +32,9 @@ func Test_It_returns_a_valid_response(t *testing.T) {
 }
 
 func Test_It_raises_an_error_when_there_is_no_connection(t *testing.T) {
-	reliablereq.Flush()
+	Flush()
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 
 	_, err := req.Get("http://example.non/list")
 
@@ -45,7 +44,7 @@ func Test_It_raises_an_error_when_there_is_no_connection(t *testing.T) {
 func Test_It_returns_an_error_when_server_responds_with_a_non_2xx(t *testing.T) {
 
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	non2xx := []int{400, 404, 503}
 	for _, status := range non2xx {
@@ -53,7 +52,7 @@ func Test_It_returns_an_error_when_server_responds_with_a_non_2xx(t *testing.T) 
 			Get("/list").
 			Reply(status)
 
-		req := reliablereq.NewReliableRequest()
+		req := NewReliableRequest()
 		gock.InterceptClient(req.HTTPClient)
 		defer gock.RestoreClient(req.HTTPClient)
 
@@ -65,7 +64,7 @@ func Test_It_returns_an_error_when_server_responds_with_a_non_2xx(t *testing.T) 
 
 func Test_It_uses_cache_when_enabled(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
@@ -73,7 +72,7 @@ func Test_It_uses_cache_when_enabled(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
 
@@ -92,7 +91,7 @@ func Test_It_uses_cache_when_enabled(t *testing.T) {
 
 func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
@@ -100,7 +99,7 @@ func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.EnableCache = false
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
@@ -118,7 +117,7 @@ func Test_It_doesnt_use_cache_when_disabled(t *testing.T) {
 
 func Test_It_uses_stale_cache_when_enabled(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
@@ -126,7 +125,7 @@ func Test_It_uses_stale_cache_when_enabled(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.TTLCache = 1 * time.Second
 	gock.InterceptClient(req.HTTPClient)
 	defer gock.RestoreClient(req.HTTPClient)
@@ -147,7 +146,7 @@ func Test_It_uses_stale_cache_when_enabled(t *testing.T) {
 
 func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
@@ -155,7 +154,7 @@ func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.TTLCache = 1 * time.Second
 	req.EnableStaleCache = false
 	gock.InterceptClient(req.HTTPClient)
@@ -177,7 +176,7 @@ func Test_It_doesnt_use_stale_cache_when_disabled(t *testing.T) {
 
 func Test_It_allows_custom_headers(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		MatchHeader("Authorization", "^foo bar$").
@@ -186,7 +185,7 @@ func Test_It_allows_custom_headers(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.Headers = map[string]string{"Authorization": "foo bar"}
 
 	gock.InterceptClient(req.HTTPClient)
@@ -200,14 +199,14 @@ func Test_It_allows_custom_headers(t *testing.T) {
 }
 func Test_It_opens_the_circuit_breaker_when_error_percentage_is_reached(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list").
 		Times(5).
 		Reply(503)
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.UpdateHystrixConfig("custom_cb", hystrix.CommandConfig{
 		Timeout:                800 + 100, // the defaultTimeout http client + a small gap
 		MaxConcurrentRequests:  100,
@@ -232,7 +231,7 @@ func Test_It_opens_the_circuit_breaker_when_error_percentage_is_reached(t *testi
 }
 func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 	defer gock.Off()
-	reliablereq.Flush()
+	Flush()
 
 	gock.New("http://example.com").
 		Get("/list0").
@@ -261,7 +260,7 @@ func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 		Reply(200).
 		JSON(map[string]interface{}{"name": "mock"})
 
-	req := reliablereq.NewReliableRequest()
+	req := NewReliableRequest()
 	req.UpdateHystrixConfig("custom_cb", hystrix.CommandConfig{
 		Timeout:                800 + 100, // the defaultTimeout http client + a small gap
 		MaxConcurrentRequests:  100,
