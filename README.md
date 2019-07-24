@@ -22,6 +22,10 @@ req.Headers = map[string]string{"Authorization": "Bearer foobar"}
 body, err := req.Get("http://example.com/list")
 ```
 
+## WARNING
+Make sure you use different Hystrix commands for other endpoint APIs or separated Circuit Breaker contexts, otherwise, an endpoint may open the circuit breaker and all other requests will fail.
+
+
 # Opinionated defaults
 
 ```golang
