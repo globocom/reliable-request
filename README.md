@@ -20,6 +20,17 @@ body, err := req.Get("http://example.com/list")
 req := reliablereq.NewReliableRequest()
 req.Headers = map[string]string{"Authorization": "Bearer foobar"}
 body, err := req.Get("http://example.com/list")
+
+// creating a different hystrix command
+req := reliablereq.NewReliableRequest()
+req.UpdateHystrixConfig("api2command", hystrix.CommandConfig{
+		Timeout:                800 + 100,
+		MaxConcurrentRequests:  100,
+		ErrorPercentThreshold:  50,
+		RequestVolumeThreshold: 20,
+		SleepWindow:            5000,
+	})
+ body, err := req.Get("http://example.com/list")
 ```
 
 ## WARNING
@@ -62,12 +73,12 @@ client := &http.Client{
 # Future
 
 * provide a proxy to setup hystrix
+* add retry logic (by go-resiliency)
 * add more examples, like token header requests and more
 * discuss the adopted defaults
 * discuss whether async hystrix is better (Go instead of Do)
 * understand and test the simultaneous client req hystrix config to see its implications
 * add go api documentation
-* add retry logic (by go-resiliency)
 * add hooks (callbacks) to provides means for metrics gathering
 * add more HTTP verbs?
 * add load stress
