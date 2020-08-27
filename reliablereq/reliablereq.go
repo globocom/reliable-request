@@ -46,7 +46,7 @@ func (rr *ReliableRequest) Get(url string) (string, error) {
 	var body string
 
 	if rr.EnableCache {
-		cached, found := rr.getCache(url)
+		cached, found := rr.GetCache(url)
 		if found {
 			return cached, nil
 		}
@@ -99,7 +99,7 @@ func (rr *ReliableRequest) setCache(url, body string) {
 	}
 }
 
-func (rr *ReliableRequest) getCache(key string) (string, bool) {
+func (rr *ReliableRequest) GetCache(key string) (string, bool) {
 	cached, found := cachedResponses.Get(key)
 	if found {
 		return cached.(string), true
@@ -109,7 +109,7 @@ func (rr *ReliableRequest) getCache(key string) (string, bool) {
 }
 
 func (rr *ReliableRequest) getStaleCache(key string) (string, error) {
-	cached, found := rr.getCache(keyStale(key))
+	cached, found := rr.GetCache(keyStale(key))
 	if found {
 		return cached, nil
 	}
