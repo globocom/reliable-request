@@ -226,6 +226,8 @@ func Test_It_opens_the_circuit_breaker_when_error_percentage_is_reached(t *testi
 
 	cb, _, _ := hystrix.GetCircuit("custom_cb")
 
+	time.Sleep(100 * time.Millisecond)
+
 	assert.Equal(t, "", body)
 	assert.Equal(t, true, cb.IsOpen())
 }
@@ -277,6 +279,8 @@ func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 	body, _ := req.Get("http://example.com/list0") //error 100%
 	body, _ = req.Get("http://example.com/list1")  //error 100%
 
+	time.Sleep(100 * time.Millisecond)
+
 	assert.Equal(t, "", body)
 	assert.Equal(t, true, cb.IsOpen()) // open due to error percentage + request volume threshold
 
@@ -287,6 +291,8 @@ func Test_It_closes_the_circuit_breaker_after_the_sleep_window(t *testing.T) {
 
 	body, _ = req.Get("http://example.com/list4") //error 60%
 	body, _ = req.Get("http://example.com/list5") //error 50%
+
+	time.Sleep(100 * time.Millisecond)
 
 	assert.Equal(t, false, cb.IsOpen()) // closed due to error percentage
 }
